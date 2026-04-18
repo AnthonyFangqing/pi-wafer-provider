@@ -1,0 +1,40 @@
+[
+  {
+    "id": "Qwen3.5-397B-A17B",
+    "name": "Qwen 3.5 397B (A17B)",
+    "reasoning": true,
+    "modalities": {
+      "input": ["text", "image"],
+      "output": ["text"]
+    },
+    "cost": {
+      "input": 0.6,
+      "output": 3.6,
+      "cache_read": 0.12,
+      "cache_write": 0
+    },
+    "limit": {
+      "context": 262144,
+      "output": 32768
+    }
+  },
+  {
+    "id": "GLM-5.1",
+    "name": "GLM 5.1",
+    "reasoning": true,
+    "modalities": {
+      "input": ["text"],
+      "output": ["text"]
+    },
+    "cost": {
+      "input": 1.4,
+      "output": 4.4,
+      "cache_read": 0.26,
+      "cache_write": 0
+    },
+    "limit": {
+      "context": 202752,
+      "output": 32768
+    }
+  }
+]

@@ -1,0 +1,30 @@
+{
+  "name": "pi-wafer-provider",
+  "version": "1.0.0",
+  "description": "Wafer Pass provider extension for pi - Access Qwen3.5-397B-A17B and GLM-5.1 through the Wafer Pass API",
+  "type": "module",
+  "main": "index.ts",
+  "scripts": {
+    "clean": "echo 'nothing to clean'",
+    "build": "echo 'nothing to build'",
+    "check": "echo 'nothing to check'"
+  },
+  "keywords": [
+    "pi",
+    "extension",
+    "provider",
+    "wafer",
+    "wafer-pass",
+    "ai",
+    "llm",
+    "qwen",
+    "glm"
+  ],
+  "author": "",
+  "license": "MIT",
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}
