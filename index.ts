@@ -16,10 +16,10 @@
  *   - GLM-5.1 (202K context)
  */
 
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
-import models from "./models.json" with { type: "json" };
+import type { ExtensionAPI, Model, Api, ModelCompat } from "@mariozechner/pi-coding-agent";
+import modelData from "./models.json" with { type: "json" };
 
-// Model data structure from JSON
+// JSON model structure
 interface JsonModel {
   id: string;
   name: string;
@@ -37,26 +37,11 @@ interface JsonModel {
     context: number | null;
     output: number | null;
   };
-}
-
-// Pi's expected model structure
-interface PiModel {
-  id: string;
-  name: string;
-  reasoning: boolean;
-  input: string[];
-  cost: {
-    input: number;
-    output: number;
-    cacheRead: number;
-    cacheWrite: number;
-  };
-  contextWindow: number;
-  maxTokens: number;
+  compat?: ModelCompat;
 }
 
 // Transform JSON model to Pi's expected format
-function transformModel(model: JsonModel): PiModel {
+function transformModel(model: JsonModel): Model<Api> {
   const cost = model.cost ?? {};
   return {
     id: model.id,
@@ -71,16 +56,19 @@ function transformModel(model: JsonModel): PiModel {
     },
     contextWindow: model.limit.context ?? 0,
     maxTokens: model.limit.output ?? 0,
-  };
+    api: "openai-completions",
+    provider: "wafer",
+    compat: model.compat,
+  } as Model<Api>;
 }
 
-const transformedModels = (models as JsonModel[]).map(transformModel);
+const models = (modelData as JsonModel[]).map(transformModel);
 
 export default function (pi: ExtensionAPI) {
   pi.registerProvider("wafer", {
     baseUrl: "https://pass.wafer.ai/v1",
     apiKey: "WAFER_API_KEY",
     api: "openai-completions",
-    models: transformedModels,
+    models,
   });
 }
