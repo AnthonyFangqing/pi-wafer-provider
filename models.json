@@ -40,6 +40,11 @@
     "limit": {
       "context": 202752,
       "output": 32768
+    },
+    "compat": {
+      "maxTokensField": "max_completion_tokens",
+      "thinkingFormat": "zai",
+      "supportsDeveloperRole": false
     }
   }
 ]
