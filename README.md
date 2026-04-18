@@ -1,67 +1,84 @@
 # pi-wafer-provider
 
-[Wafer Pass](https://wafer.ai) provider extension for [pi](https://github.com/badlogic/pi-mono) — Access fast open-source LLMs through the Wafer Pass API.
+A [pi](https://github.com/marioechr/pi) extension that registers [Wafer Pass](https://wafer.ai) as a custom provider. Access Qwen3.5-397B-A17B and GLM-5.1 models through a unified OpenAI-compatible API.
 
-## Models
+## Features
 
-| Model | Context Window | Max Output | Reasoning |
-|-------|---------------|------------|-----------|
-| Qwen 3.5 397B (A17B) | 262,144 | 32,768 | ✅ |
-| GLM 5.1 | 202,752 | 32,768 | ✅ |
+- **Fast Open-Source Models** via Wafer Pass subscription
+- **Unified API** via Wafer's OpenAI-compatible completions endpoint
+- **Cost Tracking** with per-model pricing for budget management
+- **Reasoning Models** support for advanced reasoning capabilities
+- **Vision Support** for Qwen3.5 (image + text input)
 
-## Setup
+## Installation
 
-### 1. Get a Wafer Pass API key
+### Option 1: Using `pi install` (Recommended)
 
-Sign up at [wafer.ai](https://wafer.ai) and obtain your API key.
-
-### 2. Set the environment variable
-
-```bash
-export WAFER_API_KEY="your-api-key-here"
-```
-
-Add this to your `~/.bashrc`, `~/.zshrc`, or shell profile to persist it.
-
-### 3. Run pi with the extension
+Install directly from GitHub:
 
 ```bash
-# From this directory
-pi -e .
-
-# Or with an absolute path
-pi -e /path/to/pi-wafer-provider
+pi install git:github.com/monotykamary/pi-wafer-provider
 ```
 
-### 4. Select a model
+Then set your API key and run pi:
+```bash
+export WAFER_API_KEY=your-api-key-here
+pi
+```
+
+### Option 2: Manual Clone
+
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/monotykamary/pi-wafer-provider.git
+   cd pi-wafer-provider
+   ```
+
+2. Set your Wafer API key:
+   ```bash
+   export WAFER_API_KEY=your-api-key-here
+   ```
+
+3. Run pi with the extension:
+   ```bash
+   pi -e /path/to/pi-wafer-provider
+   ```
+
+## Available Models
+
+| Model | Type | Context | Max Output | Input Cost | Output Cost |
+|-------|------|---------|------------|------------|-------------|
+| Qwen 3.5 397B (A17B) | Text + Image | 262K | 32K | $0.60 | $3.60 |
+| GLM 5.1 | Text | 203K | 32K | $1.40 | $4.40 |
+
+*Costs are per million tokens. Prices based on official provider pricing.*
+
+## Usage
+
+After loading the extension, use the `/model` command in pi to select your preferred model:
 
 ```
 /model
 ```
 
-Then select either **Qwen 3.5 397B (A17B)** or **GLM 5.1**.
+Then select "wafer" as the provider and choose from the available models.
 
-## Usage Examples
+## Environment Variables
 
-```bash
-# Interactive mode
-pi -e /path/to/pi-wafer-provider
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `WAFER_API_KEY` | Yes | Your Wafer Pass API key |
 
-# Print mode with a specific model
-pi -e /path/to/pi-wafer-provider --model wafer/Qwen3.5-397B-A17B -p "Hello!"
+## Configuration
 
-# With thinking level
-pi -e /path/to/pi-wafer-provider --thinking high
-```
+Add to your pi configuration for automatic loading:
 
-## Project Structure
-
-```
-pi-wafer-provider/
-├── index.ts        # Extension entry point
-├── models.json     # Model definitions
-├── package.json    # Package metadata with pi extension config
-└── README.md       # This file
+```json
+{
+  "extensions": [
+    "/path/to/pi-wafer-provider"
+  ]
+}
 ```
 
 ## License
