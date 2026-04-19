@@ -15,7 +15,7 @@
     },
     "limit": {
       "context": 262144,
-      "output": 32768
+      "output": 65536
     },
     "compat": {
       "maxTokensField": "max_completion_tokens",
@@ -39,7 +39,7 @@
     },
     "limit": {
       "context": 202752,
-      "output": 32768
+      "output":  131072
     },
     "compat": {
       "maxTokensField": "max_completion_tokens",
