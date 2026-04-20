@@ -46,10 +46,10 @@ pi
 
 ## Available Models
 
-| Model | Type | Context | Max Output | Input Cost | Output Cost |
-|-------|------|---------|------------|------------|-------------|
-| Qwen 3.5 397B (A17B) | Text + Image | 262K | 32K | $0.60 | $3.60 |
-| GLM 5.1 | Text | 203K | 32K | $1.40 | $4.40 |
+| Model | Type | Context | Max Output | Input Cost | Output Cost | Cached Input |
+|-------|------|---------|------------|------------|-------------|--------------|
+| Qwen 3.5 397B (A17B) | Text + Image | 262K | 32K | $0.60 | $3.60 | $0.06 |
+| GLM 5.1 | Text | 203K | 32K | $1.50 | $4.50 | $0.15 |
 
 *Costs are per million tokens. Prices based on official provider pricing.*
 
