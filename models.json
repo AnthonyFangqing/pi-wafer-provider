@@ -10,7 +10,7 @@
     "cost": {
       "input": 0.6,
       "output": 3.6,
-      "cache_read": 0.12,
+      "cache_read": 0.06,
       "cache_write": 0
     },
     "limit": {
@@ -32,9 +32,9 @@
       "output": ["text"]
     },
     "cost": {
-      "input": 1.4,
-      "output": 4.4,
-      "cache_read": 0.26,
+      "input": 1.5,
+      "output": 4.5,
+      "cache_read": 0.15,
       "cache_write": 0
     },
     "limit": {
