@@ -1,6 +1,6 @@
 # pi-wafer-provider
 
-A [pi](https://github.com/marioechr/pi) extension that registers [Wafer Pass](https://wafer.ai) as a custom provider. Access Qwen3.5-397B-A17B and GLM-5.1 models through a unified OpenAI-compatible API.
+A [pi](https://github.com/badlogic/pi-mono) extension that registers [Wafer Pass](https://wafer.ai) as a custom provider. Access Qwen3.5-397B-A17B and GLM-5.1 models through a unified OpenAI-compatible API.
 
 ## Features
 
