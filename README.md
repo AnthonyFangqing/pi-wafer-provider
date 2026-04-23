@@ -22,7 +22,12 @@ pi install git:github.com/monotykamary/pi-wafer-provider
 
 Then set your API key and run pi:
 ```bash
+# Recommended: add to auth.json
+# See Authentication section below
+
+# Or set as environment variable
 export WAFER_API_KEY=your-api-key-here
+
 pi
 ```
 
@@ -36,6 +41,10 @@ pi
 
 2. Set your Wafer API key:
    ```bash
+   # Recommended: add to auth.json
+   # See Authentication section below
+
+   # Or set as environment variable
    export WAFER_API_KEY=your-api-key-here
    ```
 
@@ -63,11 +72,23 @@ After loading the extension, use the `/model` command in pi to select your prefe
 
 Then select "wafer" as the provider and choose from the available models.
 
+## Authentication
+
+The Wafer API key can be configured in multiple ways (resolved in this order):
+
+1. **`auth.json`** (recommended) — Add to `~/.pi/agent/auth.json`:
+   ```json
+   { "wafer": { "type": "api_key", "key": "your-api-key" } }
+   ```
+   The `key` field supports literal values, env var names, and shell commands (prefix with `!`). See [pi's auth file docs](https://github.com/badlogic/pi-mono) for details.
+2. **Runtime override** — Use the `--api-key` CLI flag
+3. **Environment variable** — Set `WAFER_API_KEY`
+
 ## Environment Variables
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `WAFER_API_KEY` | Yes | Your Wafer Pass API key |
+| `WAFER_API_KEY` | No | Your Wafer Pass API key (fallback if not in auth.json) |
 
 ## Configuration
 

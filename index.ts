@@ -5,7 +5,11 @@
  * OpenAI completions API.
  *
  * Usage:
- *   # Set your API key
+ *   # Option 1: Store in auth.json (recommended)
+ *   # Add to ~/.pi/agent/auth.json:
+ *   #   "wafer": { "type": "api_key", "key": "your-api-key" }
+ *
+ *   # Option 2: Set as environment variable
  *   export WAFER_API_KEY=your-api-key
  *
  *   # Run pi with the extension
@@ -16,7 +20,7 @@
  *   - GLM-5.1 (202K context)
  */
 
-import type { ExtensionAPI, Model, Api, ModelCompat } from "@mariozechner/pi-coding-agent";
+import type { AuthStorage, ExtensionAPI, Model, Api, ModelCompat } from "@mariozechner/pi-coding-agent";
 import modelData from "./models.json" with { type: "json" };
 
 // JSON model structure
@@ -64,7 +68,40 @@ function transformModel(model: JsonModel): Model<Api> {
 
 const models = (modelData as JsonModel[]).map(transformModel);
 
+// ─── API Key Resolution (via AuthStorage) ────────────────────────────────────
+
+/**
+ * Cached API key resolved from AuthStorage.
+ *
+ * Pi's core resolves the key via AuthStorage.getApiKey() before making requests,
+ * but we also cache it here so we can resolve it in contexts where the resolved
+ * key isn't directly available (e.g. future features like quota fetching) and
+ * to make the AuthStorage dependency explicit.
+ *
+ * Resolution order (via AuthStorage.getApiKey):
+ *   1. Runtime override (CLI --api-key)
+ *   2. auth.json stored credentials (manual entry in ~/.pi/agent/auth.json)
+ *   3. OAuth tokens (auto-refreshed)
+ *   4. Environment variable (WAFER_API_KEY)
+ *   5. Fallback resolver
+ */
+let cachedApiKey: string | undefined;
+
+/**
+ * Resolve the Wafer API key via AuthStorage and cache the result.
+ * Called on session_start and whenever ctx.modelRegistry.authStorage is available.
+ */
+async function resolveApiKey(authStorage: AuthStorage): Promise<void> {
+  const key = await authStorage.getApiKey("wafer");
+  cachedApiKey = key ?? process.env.WAFER_API_KEY;
+}
+
 export default function (pi: ExtensionAPI) {
+  // Resolve API key via AuthStorage on session start
+  pi.on("session_start", async (_event, ctx) => {
+    await resolveApiKey(ctx.modelRegistry.authStorage);
+  });
+
   pi.registerProvider("wafer", {
     baseUrl: "https://pass.wafer.ai/v1",
     apiKey: "WAFER_API_KEY",
