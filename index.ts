@@ -185,7 +185,11 @@ export default function (pi: ExtensionAPI) {
     await resolveApiKey(ctx.modelRegistry);
     revalidateModels(cachedApiKey, embeddedModels).then((freshBase) => {
       if (freshBase) {
-        pi.registerProvider("wafer", { models: freshBase.map(transformModel) });
+        pi.registerProvider("wafer", {
+          baseUrl: BASE_URL,
+          apiKey: "WAFER_API_KEY",
+          models: freshBase.map(transformModel),
+        });
       }
     });
   });
