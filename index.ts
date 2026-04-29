@@ -188,6 +188,7 @@ export default function (pi: ExtensionAPI) {
         pi.registerProvider("wafer", {
           baseUrl: BASE_URL,
           apiKey: "WAFER_API_KEY",
+          api: "openai-completions",
           models: freshBase.map(transformModel),
         });
       }
