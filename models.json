@@ -50,7 +50,7 @@
   {
     "id": "DeepSeek-V4-Pro",
     "name": "DeepSeek V4 Pro",
-    "reasoning": false,
+    "reasoning": true,
     "modalities": {
       "input": ["text"],
       "output": ["text"]
@@ -67,6 +67,7 @@
     },
     "compat": {
       "maxTokensField": "max_completion_tokens",
+      "thinkingFormat": "deepseek",
       "supportsDeveloperRole": false
     }
   }
