@@ -1,6 +1,6 @@
 # pi-wafer-provider
 
-A [pi](https://github.com/badlogic/pi-mono) extension that registers [Wafer Pass](https://wafer.ai) as a custom provider. Access Qwen3.5-397B-A17B and GLM-5.1 models through a unified OpenAI-compatible API.
+A [pi](https://github.com/badlogic/pi-mono) extension that registers [Wafer Pass](https://wafer.ai) as a custom provider. Access Qwen3.5-397B-A17B, GLM-5.1, and DeepSeek-V4-Pro models through a unified OpenAI-compatible API.
 
 ## Features
 
@@ -59,6 +59,7 @@ pi
 |-------|------|---------|------------|------------|-------------|--------------|
 | Qwen 3.5 397B (A17B) | Text + Image | 262K | 32K | $0.60 | $3.60 | $0.06 |
 | GLM 5.1 | Text | 203K | 32K | $1.50 | $4.50 | $0.15 |
+| DeepSeek V4 Pro | Text | 262K | 32K | $1.74 | $3.48 | $0.01 |
 
 *Costs are per million tokens. Prices based on official provider pricing.*
 

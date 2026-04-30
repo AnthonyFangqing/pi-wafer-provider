@@ -46,5 +46,28 @@
       "thinkingFormat": "zai",
       "supportsDeveloperRole": false
     }
+  },
+  {
+    "id": "DeepSeek-V4-Pro",
+    "name": "DeepSeek V4 Pro",
+    "reasoning": false,
+    "modalities": {
+      "input": ["text"],
+      "output": ["text"]
+    },
+    "cost": {
+      "input": 1.74,
+      "output": 3.48,
+      "cache_read": 0.0145,
+      "cache_write": 0
+    },
+    "limit": {
+      "context": 262144,
+      "output": 32768
+    },
+    "compat": {
+      "maxTokensField": "max_completion_tokens",
+      "supportsDeveloperRole": false
+    }
   }
 ]
