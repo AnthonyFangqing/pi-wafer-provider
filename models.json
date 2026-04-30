@@ -2,72 +2,61 @@
   {
     "id": "Qwen3.5-397B-A17B",
     "name": "Qwen 3.5 397B (A17B)",
-    "reasoning": true,
-    "modalities": {
-      "input": ["text", "image"],
-      "output": ["text"]
-    },
+    "reasoning": false,
+    "input": [
+      "text",
+      "image"
+    ],
     "cost": {
       "input": 0.6,
       "output": 3.6,
-      "cache_read": 0.06,
-      "cache_write": 0
+      "cacheRead": 0.06,
+      "cacheWrite": 0
     },
-    "limit": {
-      "context": 262144,
-      "output": 32768
-    },
+    "contextWindow": 262144,
+    "maxTokens": 32768,
     "compat": {
       "maxTokensField": "max_completion_tokens",
-      "thinkingFormat": "qwen",
       "supportsDeveloperRole": false
     }
   },
   {
     "id": "GLM-5.1",
     "name": "GLM 5.1",
-    "reasoning": true,
-    "modalities": {
-      "input": ["text"],
-      "output": ["text"]
-    },
+    "reasoning": false,
+    "input": [
+      "text"
+    ],
     "cost": {
       "input": 1.5,
       "output": 4.5,
-      "cache_read": 0.15,
-      "cache_write": 0
+      "cacheRead": 0.15,
+      "cacheWrite": 0
     },
-    "limit": {
-      "context": 202752,
-      "output": 32768
-    },
+    "contextWindow": 202752,
+    "maxTokens": 32768,
     "compat": {
       "maxTokensField": "max_completion_tokens",
-      "thinkingFormat": "zai",
       "supportsDeveloperRole": false
     }
   },
   {
     "id": "DeepSeek-V4-Pro",
     "name": "DeepSeek V4 Pro",
-    "reasoning": true,
-    "modalities": {
-      "input": ["text"],
-      "output": ["text"]
-    },
+    "reasoning": false,
+    "input": [
+      "text"
+    ],
     "cost": {
       "input": 1.74,
       "output": 3.48,
-      "cache_read": 0.0145,
-      "cache_write": 0
+      "cacheRead": 0.0145,
+      "cacheWrite": 0
     },
-    "limit": {
-      "context": 262144,
-      "output": 32768
-    },
+    "contextWindow": 262144,
+    "maxTokens": 32768,
     "compat": {
       "maxTokensField": "max_completion_tokens",
-      "thinkingFormat": "deepseek",
       "supportsDeveloperRole": false
     }
   }

@@ -7,6 +7,7 @@
  * Model resolution strategy: Stale-While-Revalidate
  *   1. Serve stale immediately: disk cache → embedded models.json (zero-latency)
  *   2. Revalidate in background: live API /models → merge with embedded → cache → hot-swap
+ *   3. patch.json is always applied on top of whichever source won
  *
  * Usage:
  *   # Option 1: Store in auth.json (recommended)
@@ -25,7 +26,8 @@
  */
 
 import type { ExtensionAPI, Model, Api, ModelCompat, ModelRegistry } from "@mariozechner/pi-coding-agent";
-import modelData from "./models.json" with { type: "json" };
+import modelsData from "./models.json" with { type: "json" };
+import patchData from "./patch.json" with { type: "json" };
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -36,20 +38,66 @@ interface JsonModel {
   id: string;
   name: string;
   reasoning: boolean;
-  modalities: {
-    input: string[];
-  };
+  input: string[];
   cost: {
     input: number;
     output: number;
-    cache_read: number;
-    cache_write: number;
+    cacheRead: number;
+    cacheWrite: number;
   };
-  limit: {
-    context: number | null;
-    output: number | null;
-  };
+  contextWindow: number;
+  maxTokens: number;
   compat?: ModelCompat;
+}
+
+interface PatchEntry {
+  name?: string;
+  reasoning?: boolean;
+  input?: string[];
+  cost?: {
+    input?: number;
+    output?: number;
+    cacheRead?: number;
+    cacheWrite?: number;
+  };
+  contextWindow?: number;
+  maxTokens?: number;
+  compat?: Record<string, unknown>;
+}
+
+type PatchData = Record<string, PatchEntry>;
+
+// ─── Patch Application ─────────────────────────────────────────────────────────
+
+function applyPatch(models: JsonModel[], patch: PatchData): JsonModel[] {
+  return models.map((model) => {
+    const overrides = patch[model.id];
+    if (!overrides) return model;
+
+    const merged = { ...model };
+    if (overrides.compat && merged.compat) {
+      merged.compat = { ...merged.compat, ...overrides.compat };
+      delete overrides.compat;
+    }
+    if (overrides.compat) {
+      merged.compat = { ...(merged.compat || {}), ...overrides.compat };
+      delete overrides.compat;
+    }
+    if (overrides.cost) {
+      merged.cost = { ...merged.cost, ...overrides.cost };
+      delete overrides.cost;
+    }
+    Object.assign(merged, overrides);
+
+    if (!merged.reasoning && merged.compat?.thinkingFormat) {
+      delete merged.compat.thinkingFormat;
+    }
+    if (merged.compat && Object.keys(merged.compat).length === 0) {
+      delete merged.compat;
+    }
+
+    return merged;
+  });
 }
 
 // ─── Model Transformation ─────────────────────────────────────────────────────
@@ -60,15 +108,15 @@ function transformModel(model: JsonModel): Model<Api> {
     id: model.id,
     name: model.name,
     reasoning: model.reasoning,
-    input: model.modalities.input,
+    input: model.input,
     cost: {
       input: cost.input ?? 0,
       output: cost.output ?? 0,
-      cacheRead: cost.cache_read ?? 0,
-      cacheWrite: cost.cache_write ?? 0,
+      cacheRead: cost.cacheRead ?? 0,
+      cacheWrite: cost.cacheWrite ?? 0,
     },
-    contextWindow: model.limit.context ?? 0,
-    maxTokens: model.limit.output ?? 0,
+    contextWindow: model.contextWindow ?? 0,
+    maxTokens: model.maxTokens ?? 0,
     api: "openai-completions",
     provider: "wafer",
     compat: model.compat,
@@ -90,12 +138,10 @@ function transformApiModel(apiModel: any): JsonModel | null {
     id: apiModel.id,
     name: apiModel.id,
     reasoning: false,
-    modalities: { input: ["text"] },
-    cost: { input: 0, output: 0, cache_read: 0, cache_write: 0 },
-    limit: {
-      context: apiModel.max_model_len || null,
-      output: null,
-    },
+    input: ["text"],
+    cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+    contextWindow: apiModel.max_model_len || 0,
+    maxTokens: 0,
   };
 }
 
@@ -170,9 +216,9 @@ async function resolveApiKey(modelRegistry: ModelRegistry): Promise<void> {
 // ─── Extension Entry Point ────────────────────────────────────────────────────
 
 export default function (pi: ExtensionAPI) {
-  const embeddedModels = modelData as JsonModel[];
+  const embeddedModels = modelsData as JsonModel[];
   const staleBase = loadStaleModels(embeddedModels);
-  const staleModels = staleBase.map(transformModel);
+  const staleModels = applyPatch(staleBase, patchData as PatchData).map(transformModel);
 
   pi.registerProvider("wafer", {
     baseUrl: BASE_URL,
@@ -189,7 +235,7 @@ export default function (pi: ExtensionAPI) {
           baseUrl: BASE_URL,
           apiKey: "WAFER_API_KEY",
           api: "openai-completions",
-          models: freshBase.map(transformModel),
+          models: applyPatch(freshBase, patchData as PatchData).map(transformModel),
         });
       }
     });

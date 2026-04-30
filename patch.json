@@ -1,0 +1,26 @@
+{
+  "Qwen3.5-397B-A17B": {
+    "reasoning": true,
+    "compat": {
+      "thinkingFormat": "qwen",
+      "maxTokensField": "max_completion_tokens",
+      "supportsDeveloperRole": false
+    }
+  },
+  "GLM-5.1": {
+    "reasoning": true,
+    "compat": {
+      "thinkingFormat": "zai",
+      "maxTokensField": "max_completion_tokens",
+      "supportsDeveloperRole": false
+    }
+  },
+  "DeepSeek-V4-Pro": {
+    "reasoning": true,
+    "compat": {
+      "thinkingFormat": "deepseek",
+      "maxTokensField": "max_completion_tokens",
+      "supportsDeveloperRole": false
+    }
+  }
+}
