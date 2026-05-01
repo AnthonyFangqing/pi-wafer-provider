@@ -7,10 +7,10 @@
  * - README.md: Model table in the Available Models section
  *
  * The Wafer /v1/models API returns basic model info (id, max_model_len)
- * but does NOT include pricing, context length, or max output tokens.
- * Pricing and model specs are maintained in the existing models.json and
- * carried forward for known models. New models get default pricing that
- * must be manually updated in models.json.
+ * but does NOT include pricing or max output tokens.
+ * models.json is the source of truth for curated specs — the script preserves
+ * existing data and only adds new models with sensible defaults.
+ * Curate models.json manually after new model discovery.
  *
  * patch.json is applied at runtime by the provider — not baked into models.json.
  *
@@ -26,58 +26,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const MODELS_API_URL = 'https://pass.wafer.ai/v1/models';
 const MODELS_JSON_PATH = path.join(__dirname, '..', 'models.json');
 const README_PATH = path.join(__dirname, '..', 'README.md');
-
-// ─── Pricing from Wafer Pass official docs ───────────────────────────────────
-// Prices are per 1M tokens
-const PRICING = {
-  'Qwen3.5-397B-A17B': {
-    input: 0.6,
-    output: 3.6,
-    cacheRead: 0.06,
-  },
-  'GLM-5.1': {
-    input: 1.5,
-    output: 4.5,
-    cacheRead: 0.15,
-  },
-  'DeepSeek-V4-Pro': {
-    input: 1.74,
-    output: 3.48,
-    cacheRead: 0.0145,
-  },
-};
-
-// Default pricing for unknown models
-const DEFAULT_PRICING = { input: 0.5, output: 2.0, cacheRead: 0 };
-
-// ─── Model metadata ─────────────────────────────────────────────────────────
-
-const MODEL_SPECS = {
-  'Qwen3.5-397B-A17B': {
-    name: 'Qwen 3.5 397B (A17B)',
-    reasoning: false,
-    input: ['text', 'image'],
-    contextWindow: 262144,
-    maxTokens: 32768,
-    thinkingFormat: 'qwen',
-  },
-  'GLM-5.1': {
-    name: 'GLM 5.1',
-    reasoning: false,
-    input: ['text'],
-    contextWindow: 202752,
-    maxTokens: 32768,
-    thinkingFormat: 'zai',
-  },
-  'DeepSeek-V4-Pro': {
-    name: 'DeepSeek V4 Pro',
-    reasoning: false,
-    input: ['text'],
-    contextWindow: 262144,
-    maxTokens: 32768,
-    thinkingFormat: 'deepseek',
-  },
-};
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -122,7 +70,7 @@ async function fetchModels() {
 function transformApiModel(apiModel, existingModelsMap) {
   const id = apiModel.id;
 
-  // Start from existing model data if we have it (preserves pricing, compat, etc.)
+  // Preserve existing curated data (pricing, reasoning, compat, etc.)
   if (existingModelsMap[id]) {
     const existing = { ...existingModelsMap[id] };
     // Update context window from API if changed
@@ -132,36 +80,26 @@ function transformApiModel(apiModel, existingModelsMap) {
     return existing;
   }
 
-  // New model — build from known specs + defaults
-  const specs = MODEL_SPECS[id] || {};
-  const pricing = PRICING[id] || DEFAULT_PRICING;
-  const input = specs.input || ['text'];
-
+  // New model — sensible defaults; curate models.json manually after discovery
   const model = {
     id,
-    name: specs.name || generateDisplayName(id),
-    reasoning: specs.reasoning || false,
-    input,
+    name: generateDisplayName(id),
+    reasoning: false,
+    input: ['text'],
     cost: {
-      input: pricing.input,
-      output: pricing.output,
-      cacheRead: pricing.cacheRead || 0,
+      input: 0,
+      output: 0,
+      cacheRead: 0,
       cacheWrite: 0,
     },
-    contextWindow: specs.contextWindow || apiModel.max_model_len || 131072,
-    maxTokens: specs.maxTokens || 32768,
+    contextWindow: apiModel.max_model_len || 131072,
+    maxTokens: 16384,
+    compat: {
+      maxTokensField: 'max_completion_tokens',
+      supportsDeveloperRole: false,
+      supportsStore: false,
+    },
   };
-
-  // Add compat settings
-  model.compat = {
-    maxTokensField: 'max_completion_tokens',
-    supportsDeveloperRole: false,
-    supportsStore: false,
-  };
-
-  if (model.reasoning && specs.thinkingFormat) {
-    model.compat.thinkingFormat = specs.thinkingFormat;
-  }
 
   return model;
 }
@@ -228,7 +166,7 @@ async function main() {
   try {
     const apiModels = await fetchModels();
 
-    // Load existing models.json for pricing/compat preservation
+    // Load existing models.json — source of truth for curated specs
     const existingModels = loadJson(MODELS_JSON_PATH);
     const existingModelsMap = {};
     for (const m of (Array.isArray(existingModels) ? existingModels : [])) {
@@ -241,7 +179,6 @@ async function main() {
     );
 
     // Keep models from models.json that are NOT in the API response
-    // (e.g. models still available but not yet listed)
     const apiIds = new Set(apiModels.map(m => m.id));
     for (const existing of Object.values(existingModelsMap)) {
       if (!apiIds.has(existing.id)) {
@@ -267,7 +204,7 @@ async function main() {
     console.log('\n--- Summary ---');
     console.log(`Total models: ${models.length}`);
     console.log(`Vision models: ${models.filter(m => m.input.includes('image')).length}`);
-    if (added.length > 0) console.log(`New models: ${added.join(', ')}`);
+    if (added.length > 0) console.log(`New models: ${added.join(', ')} — curate models.json manually`);
     if (removed.length > 0) console.log(`Removed models: ${removed.join(', ')}`);
 
   } catch (error) {
