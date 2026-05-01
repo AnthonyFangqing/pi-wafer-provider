@@ -17,6 +17,8 @@
   },
   "DeepSeek-V4-Pro": {
     "reasoning": true,
+    "contextWindow": 1000000,
+    "maxTokens": 384000,
     "compat": {
       "thinkingFormat": "deepseek",
       "maxTokensField": "max_completion_tokens",
